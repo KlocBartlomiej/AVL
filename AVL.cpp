@@ -44,13 +44,13 @@ void AVL<T>::remove(T value) {
 
 template<typename T>
 bool AVL<T>::search(T value) {
-
+	return false;
 }
 
 template<typename T>
 void AVL<T>::checkIfRotateNeeded(std::unique_ptr<Node<T>> &node) {
 	if (node->parrent != nullptr) {
-		checkIfRotateNeeded(Node->parrent);
+		checkIfRotateNeeded(node->parrent);
 	}
 }
 
