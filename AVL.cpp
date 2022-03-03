@@ -45,7 +45,7 @@ template<typename T>
 void AVL<T>::cleaningLeftRightWeight(std::shared_ptr<Node<T>> &parrent, std::shared_ptr<Node<T>> &node) {
 	if(parrent->leftChild == node) {
 		parrent->left--;
-	} else {
+	} else if(parrent->rightChild == node) {
 		parrent->right--;
 	}
 	if(parrent->parrent != nullptr) {
@@ -55,63 +55,78 @@ void AVL<T>::cleaningLeftRightWeight(std::shared_ptr<Node<T>> &parrent, std::sha
 
 template<typename T>
 void AVL<T>::remove(T value) {
-	auto node = search(root, value);
+	if(root != nullptr){
+		removeNode(root,value);
+	}
+}
+
+template<typename T>
+void AVL<T>::removeNode(std::shared_ptr<Node<T>> &startingNode, T value) {
+	auto node = search(startingNode, value);
 	if(node != nullptr) {
 		if(node->leftChild == nullptr && node->rightChild == nullptr) {
-			if(node->parrent->leftChild->value == node->value){
+			if(node->parrent != nullptr) {
+			if(node->parrent->leftChild != nullptr && node->parrent->leftChild->value == node->value) {
 				node->parrent->leftChild = nullptr;
+				node->parrent->left--;
 			} else {
 				node->parrent->rightChild = nullptr;
+				node->parrent->right--;
 			}
-		} else if(node->leftChild != nullptr) {
-			if(node->parrent->leftChild->value == node->value){
-				node->parrent->leftChild = node->leftChild;
+			cleaningLeftRightWeight(node->parrent,node);
 			} else {
-				node->parrent->rightChild = node->leftChild;
+				root = nullptr;
 			}
-			node->leftChild->parrent = node->parrent;
-		} else if(node->rightChild != nullptr){
-			if(node->parrent->leftChild->value == node->value){
-				node->parrent->leftChild = node->rightChild;
+		} else if(node->leftChild != nullptr && node->rightChild == nullptr) {
+			if(node->parrent != nullptr) {
+				if(node->parrent->leftChild != nullptr && node->parrent->leftChild->value == node->value) {
+					node->parrent->leftChild = node->leftChild;
+					node->parrent->left--;
+				} else {
+					node->parrent->rightChild = node->leftChild;
+					node->parrent->right--;
+				}
+				node->leftChild->parrent = node->parrent;
+				cleaningLeftRightWeight(node->parrent,node);
 			} else {
-				node->parrent->rightChild = node->rightChild;
+				node->leftChild->parrent = nullptr;
+				root = node->leftChild;
 			}
+		} else if(node->leftChild == nullptr && node->rightChild != nullptr) {
+			if(node->parrent != nullptr) {
+				if(node->parrent->leftChild != nullptr && node->parrent->leftChild->value == node->value) {
+					node->parrent->leftChild = node->rightChild;
+					node->parrent->left--;
+				} else {
+					node->parrent->rightChild = node->rightChild;
+					node->parrent->right--;
+				}
 			node->rightChild->parrent = node->parrent;
-		} else {
-			auto nodeToReplace = findBiggestElementInBranch(node->rightChild);
-			nodeToReplace->leftChild = node->leftChild;
-			nodeToReplace->leftChild->parrent = nodeToReplace;
-			nodeToReplace->rightChild = node->rightChild;
-			
-			nodeToReplace->rightChild->parrent = nodeToReplace;
-
-			
-			nodeToReplace->parrent->leftChild = nullptr;
-			nodeToReplace->parrent = node->parrent;
-			if(node->parrent->leftChild->value == node->value){
-				nodeToReplace->parrent->leftChild = nodeToReplace;
+			cleaningLeftRightWeight(node->parrent,node);
 			} else {
-				nodeToReplace->parrent->rightChild = nodeToReplace;
+				node->rightChild->parrent = nullptr;
+				root = node->rightChild;
 			}
+		} else {
+			auto nodeToReplace = findBiggestElementInBranch(node->leftChild);
+			node->value = nodeToReplace->value;
+			removeNode(node->leftChild,nodeToReplace->value);
 		}
-		std::cout << "Element with value " << value << " removed successfully." << std::endl;
-	} else {
-		std::cout << "Couldn't find an element to remove." << std::endl;
 	}
 }
 
 template<typename T>
 std::shared_ptr<Node<T>> AVL<T>::findBiggestElementInBranch(std::shared_ptr<Node<T>> &node) {
-	if(node->leftChild == nullptr){
+	if(node->rightChild == nullptr) {
 		return node;
 	} else {
-		return findBiggestElementInBranch(node->leftChild);
+		return findBiggestElementInBranch(node->rightChild);
 	}
 }
 
 template<typename T>
 bool AVL<T>::search(T value) {
-	if (root != nullptr){
+	if (root != nullptr) {
 		return search(root, value) != nullptr;
 	} else {
 		std::cout << "There is no elemnt with value " << value << " in the tree." << std::endl;
@@ -157,6 +172,7 @@ void AVL<T>::print() {
 	if (this->root != nullptr) {
 		printAll(this->root,0);
 	}
+	std::cout<<std::endl<<"-----"<<std::endl;
 }
 
 template<typename T>

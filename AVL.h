@@ -31,9 +31,9 @@ public:
 private:
 
 	std::shared_ptr<Node<T>> root;
-
 	void addNode(std::shared_ptr<Node<T>> &node, T value);
 	void cleaningLeftRightWeight(std::shared_ptr<Node<T>> &parrent, std::shared_ptr<Node<T>> &node);
+	void removeNode(std::shared_ptr<Node<T>> &node, T value);
 	void checkIfRotateNeeded(std::shared_ptr<Node<T>> &node);
 	void rotateLeft(std::shared_ptr<Node<T>> &node);
 	void rotateRight(std::shared_ptr<Node<T>> &node);
