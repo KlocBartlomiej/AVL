@@ -13,6 +13,7 @@ void AVL<T>::add(T value) {
 template<typename T>
 void AVL<T>::addNode(std::unique_ptr<Node<T>> &node, T value) {
 	if (node->value > value) {
+		node->right++;
 		if (node->rightChild == nullptr) {
 			node->rightChild = std::make_unique<Node<T>>(value);
 			checkIfRotateNeeded(node);
@@ -22,6 +23,7 @@ void AVL<T>::addNode(std::unique_ptr<Node<T>> &node, T value) {
 		}
 	}
 	else if (node->value < value) {
+		node->left++;
 		if (node->leftChild == nullptr) {
 			node->leftChild = std::make_unique<Node<T>>(value);
 			checkIfRotateNeeded(node);
@@ -77,7 +79,7 @@ void AVL<T>::printAll(std::unique_ptr<Node<T>> &node, int level) {
 	for (int i = 0; i < level; i++) {
 		std::cout << "    ";
 	}
-	std::cout << node->value << std::endl;
+	std::cout << node->value <<"," << node->left << "," << node->right << std::endl;
 	if (node->rightChild != nullptr) {
 		printAll(node->rightChild, level+1);
 	}
