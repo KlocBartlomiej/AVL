@@ -55,7 +55,58 @@ void AVL<T>::cleaningLeftRightWeight(std::shared_ptr<Node<T>> &parrent, std::sha
 
 template<typename T>
 void AVL<T>::remove(T value) {
-	
+	auto node = search(root, value);
+	if(node != nullptr) {
+		if(node->leftChild == nullptr && node->rightChild == nullptr) {
+			if(node->parrent->leftChild->value == node->value){
+				node->parrent->leftChild = nullptr;
+			} else {
+				node->parrent->rightChild = nullptr;
+			}
+		} else if(node->leftChild != nullptr) {
+			if(node->parrent->leftChild->value == node->value){
+				node->parrent->leftChild = node->leftChild;
+			} else {
+				node->parrent->rightChild = node->leftChild;
+			}
+			node->leftChild->parrent = node->parrent;
+		} else if(node->rightChild != nullptr){
+			if(node->parrent->leftChild->value == node->value){
+				node->parrent->leftChild = node->rightChild;
+			} else {
+				node->parrent->rightChild = node->rightChild;
+			}
+			node->rightChild->parrent = node->parrent;
+		} else {
+			auto nodeToReplace = findBiggestElementInBranch(node->rightChild);
+			nodeToReplace->leftChild = node->leftChild;
+			nodeToReplace->leftChild->parrent = nodeToReplace;
+			nodeToReplace->rightChild = node->rightChild;
+			
+			nodeToReplace->rightChild->parrent = nodeToReplace;
+
+			
+			nodeToReplace->parrent->leftChild = nullptr;
+			nodeToReplace->parrent = node->parrent;
+			if(node->parrent->leftChild->value == node->value){
+				nodeToReplace->parrent->leftChild = nodeToReplace;
+			} else {
+				nodeToReplace->parrent->rightChild = nodeToReplace;
+			}
+		}
+		std::cout << "Element with value " << value << " removed successfully." << std::endl;
+	} else {
+		std::cout << "Couldn't find an element to remove." << std::endl;
+	}
+}
+
+template<typename T>
+std::shared_ptr<Node<T>> AVL<T>::findBiggestElementInBranch(std::shared_ptr<Node<T>> &node) {
+	if(node->leftChild == nullptr){
+		return node;
+	} else {
+		return findBiggestElementInBranch(node->leftChild);
+	}
 }
 
 template<typename T>

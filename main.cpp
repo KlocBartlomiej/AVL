@@ -18,12 +18,24 @@ int main(){
     tree->add(11);
     tree->add(12);
     tree->add(10);
+    tree->add(16);
     tree->print();
     if(tree->search(999)){
         std::cout << "element 999 is in the tree" << std::endl;
     }
     if(tree->search(8)){
         std::cout << "element 8 is in the tree" << std::endl;
+    }
+    tree->remove(8);
+    tree->print();
+    tree->remove(15);
+    tree->print();
+    tree->remove(7);
+    tree->print();
+    tree->remove(13);
+    tree->print();
+    if(tree->search(9)){
+        std::cout << "element 9 is in the tree" << std::endl;
     }
     return 0;
 }

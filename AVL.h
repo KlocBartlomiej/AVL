@@ -39,5 +39,6 @@ private:
 	void rotateRight(std::shared_ptr<Node<T>> &node);
 	void printAll(std::shared_ptr<Node<T>> &node, int level);
 	std::shared_ptr<Node<T>> search(std::shared_ptr<Node<T>> &node, T value);
+	std::shared_ptr<Node<T>> findBiggestElementInBranch(std::shared_ptr<Node<T>> &node);
 };
 #endif
