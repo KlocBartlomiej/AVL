@@ -5,9 +5,9 @@
 template<typename T>
 struct Node {
 	T value;
-	std::unique_ptr<Node<T>> parrent;
-	std::unique_ptr<Node<T>> leftChild;
-	std::unique_ptr<Node<T>> rightChild;
+	std::unique_ptr<Node<T>> parrent = nullptr;
+	std::unique_ptr<Node<T>> leftChild = nullptr;
+	std::unique_ptr<Node<T>> rightChild = nullptr;
 
 	Node(T value) {
 		this->value = value;
@@ -26,7 +26,7 @@ public:
 
 private:
 
-	std::unique_ptr<Node<T>> root;
+	std::unique_ptr<Node<T>> root = nullptr;
 
 	void addNode(std::unique_ptr<Node<T>> node, T value);
 	void checkIfRotateNeeded(std::unique_ptr<Node<T>> node);
@@ -97,7 +97,7 @@ void AVL<T>::rotateRight(std::unique_ptr<Node<T>> node) {
 template<typename T>
 void AVL<T>::print() {
 	if (this->root != nullptr) {
-		printAll(this.root,0);
+		printAll(this->root,0);
 	}
 }
 
