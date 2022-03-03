@@ -3,7 +3,7 @@
 template<typename T>
 void AVL<T>::add(T value) {
 	if (this->root == nullptr) {
-		this->root = std::make_unique<Node<T>>(value);
+		this->root = std::make_shared<Node<T>>(value);
 	}
 	else {
 		addNode(this->root, value);
@@ -11,11 +11,12 @@ void AVL<T>::add(T value) {
 }
 
 template<typename T>
-void AVL<T>::addNode(std::unique_ptr<Node<T>> &node, T value) {
+void AVL<T>::addNode(std::shared_ptr<Node<T>> &node, T value) {
 	if (node->value > value) {
 		node->right++;
 		if (node->rightChild == nullptr) {
-			node->rightChild = std::make_unique<Node<T>>(value);
+			node->rightChild = std::make_shared<Node<T>>(value);
+			node->rightChild->parrent = node;
 			checkIfRotateNeeded(node);
 		}
 		else {
@@ -25,7 +26,8 @@ void AVL<T>::addNode(std::unique_ptr<Node<T>> &node, T value) {
 	else if (node->value < value) {
 		node->left++;
 		if (node->leftChild == nullptr) {
-			node->leftChild = std::make_unique<Node<T>>(value);
+			node->leftChild = std::make_shared<Node<T>>(value);
+			node->leftChild->parrent = node;
 			checkIfRotateNeeded(node);
 		}
 		else {
@@ -34,33 +36,68 @@ void AVL<T>::addNode(std::unique_ptr<Node<T>> &node, T value) {
 	}
 	else {
 		std::cout << "There is an element with value: " << value << " already in the tree." << std::endl;
+		if(node->parrent != nullptr) {
+			cleaningLeftRightWeight(node->parrent, node);
+		}
+	}
+}
+template<typename T>
+void AVL<T>::cleaningLeftRightWeight(std::shared_ptr<Node<T>> &parrent, std::shared_ptr<Node<T>> &node) {
+	if(parrent->leftChild == node) {
+		parrent->left--;
+	} else {
+		parrent->right--;
+	}
+	if(parrent->parrent != nullptr) {
+		cleaningLeftRightWeight(parrent->parrent, parrent);
 	}
 }
 
 template<typename T>
 void AVL<T>::remove(T value) {
-
+	
 }
 
 template<typename T>
 bool AVL<T>::search(T value) {
-	return false;
+	if (root != nullptr){
+		return search(root, value) != nullptr;
+	} else {
+		std::cout << "There is no elemnt with value " << value << " in the tree." << std::endl;
+		return false;
+	}
 }
 
 template<typename T>
-void AVL<T>::checkIfRotateNeeded(std::unique_ptr<Node<T>> &node) {
+std::shared_ptr<Node<T>> AVL<T>::search(std::shared_ptr<Node<T>> &node, T value) {
+	if (node->rightChild != nullptr && node->value > value) {
+		return search(node->rightChild, value);
+	}
+	else if (node->leftChild != nullptr && node->value < value) {
+		return search(node->leftChild, value);
+	}
+	else if (node->value == value) {
+		return node;
+	} else {
+		std::cout << "There is no elemnt with value " << value << " in the tree." << std::endl;
+		return nullptr;
+	}
+}
+
+template<typename T>
+void AVL<T>::checkIfRotateNeeded(std::shared_ptr<Node<T>> &node) {
 	if (node->parrent != nullptr) {
 		checkIfRotateNeeded(node->parrent);
 	}
 }
 
 template<typename T>
-void AVL<T>::rotateLeft(std::unique_ptr<Node<T>> &node) {
+void AVL<T>::rotateLeft(std::shared_ptr<Node<T>> &node) {
 
 }
 
 template<typename T>
-void AVL<T>::rotateRight(std::unique_ptr<Node<T>> &node) {
+void AVL<T>::rotateRight(std::shared_ptr<Node<T>> &node) {
 
 }
 
@@ -72,7 +109,7 @@ void AVL<T>::print() {
 }
 
 template<typename T>
-void AVL<T>::printAll(std::unique_ptr<Node<T>> &node, int level) {
+void AVL<T>::printAll(std::shared_ptr<Node<T>> &node, int level) {
 	if (node->leftChild != nullptr) {
 		printAll(node->leftChild, level+1);
 	}

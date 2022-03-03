@@ -9,9 +9,9 @@ struct Node {
 	T value;
 	int left = 0;
 	int right = 0;
-	std::unique_ptr<Node<T>> parrent;
-	std::unique_ptr<Node<T>> leftChild;
-	std::unique_ptr<Node<T>> rightChild;
+	std::shared_ptr<Node<T>> parrent;
+	std::shared_ptr<Node<T>> leftChild;
+	std::shared_ptr<Node<T>> rightChild;
 
 	Node(T value) {
 		this->value = value;
@@ -30,12 +30,14 @@ public:
 
 private:
 
-	std::unique_ptr<Node<T>> root;
+	std::shared_ptr<Node<T>> root;
 
-	void addNode(std::unique_ptr<Node<T>> &node, T value);
-	void checkIfRotateNeeded(std::unique_ptr<Node<T>> &node);
-	void rotateLeft(std::unique_ptr<Node<T>> &node);
-	void rotateRight(std::unique_ptr<Node<T>> &node);
-	void printAll(std::unique_ptr<Node<T>> &node, int level);
+	void addNode(std::shared_ptr<Node<T>> &node, T value);
+	void cleaningLeftRightWeight(std::shared_ptr<Node<T>> &parrent, std::shared_ptr<Node<T>> &node);
+	void checkIfRotateNeeded(std::shared_ptr<Node<T>> &node);
+	void rotateLeft(std::shared_ptr<Node<T>> &node);
+	void rotateRight(std::shared_ptr<Node<T>> &node);
+	void printAll(std::shared_ptr<Node<T>> &node, int level);
+	std::shared_ptr<Node<T>> search(std::shared_ptr<Node<T>> &node, T value);
 };
 #endif
