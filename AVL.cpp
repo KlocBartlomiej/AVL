@@ -13,10 +13,10 @@ void AVL<T>::add(T value) {
 template<typename T>
 void AVL<T>::addNode(std::shared_ptr<Node<T>> &node, T value) {
 	if (node->value > value) {
-		node->right++;
 		if (node->rightChild == nullptr) {
 			node->rightChild = std::make_shared<Node<T>>(value);
-			node->rightChild->parrent = node;
+			node->rightChild->parent = node;
+			updateTreeHeight(node);
 			checkIfRotateNeeded(node);
 		}
 		else {
@@ -24,10 +24,10 @@ void AVL<T>::addNode(std::shared_ptr<Node<T>> &node, T value) {
 		}
 	}
 	else if (node->value < value) {
-		node->left++;
 		if (node->leftChild == nullptr) {
 			node->leftChild = std::make_shared<Node<T>>(value);
-			node->leftChild->parrent = node;
+			node->leftChild->parent = node;
+			updateTreeHeight(node);
 			checkIfRotateNeeded(node);
 		}
 		else {
@@ -35,22 +35,7 @@ void AVL<T>::addNode(std::shared_ptr<Node<T>> &node, T value) {
 		}
 	}
 	else {
-		std::cout << "There is an element with value: " << value << " already in the tree." << std::endl;
-		if(node->parrent != nullptr) {
-			cleaningLeftRightWeight(node->parrent, node);
-		}
-	}
-}
-
-template<typename T>
-void AVL<T>::cleaningLeftRightWeight(std::shared_ptr<Node<T>> &parrent, std::shared_ptr<Node<T>> &node) {
-	if(parrent->leftChild == node) {
-		parrent->left--;
-	} else if(parrent->rightChild == node) {
-		parrent->right--;
-	}
-	if(parrent->parrent != nullptr) {
-		cleaningLeftRightWeight(parrent->parrent, parrent);
+		std::cout << "There is an element with value: " << value << " already in the tree.\n\r";
 	}
 }
 
@@ -66,49 +51,48 @@ void AVL<T>::removeNode(std::shared_ptr<Node<T>> &startingNode, T value) {
 	auto node = search(startingNode, value);
 	if(node != nullptr) {
 		if(node->leftChild == nullptr && node->rightChild == nullptr) {
-			if(node->parrent != nullptr) {
-				if(node->parrent->leftChild != nullptr && node->parrent->leftChild->value == node->value) {
-					node->parrent->leftChild = nullptr;
-					node->parrent->left--;
+			if(node->parent != nullptr) {
+				if(node->parent->leftChild != nullptr && node->parent->leftChild->value == node->value) {
+					node->parent->leftChild = nullptr;
 				} else {
-					node->parrent->rightChild = nullptr;
-					node->parrent->right--;
+					node->parent->rightChild = nullptr;
 				}
-				cleaningLeftRightWeight(node->parrent,node);
-				checkIfRotateNeeded(node->parrent);
+				updateTreeHeight(node->parent);
+				checkIfRotateNeeded(node->parent);
+				node->parent = nullptr;
 			} else {
 				root = nullptr;
 			}
 		} else if(node->leftChild != nullptr && node->rightChild == nullptr) {
-			if(node->parrent != nullptr) {
-				if(node->parrent->leftChild != nullptr && node->parrent->leftChild->value == node->value) {
-					node->parrent->leftChild = node->leftChild;
-					node->parrent->left--;
+			if(node->parent != nullptr) {
+				if(node->parent->leftChild != nullptr && node->parent->leftChild->value == node->value) {
+					node->parent->leftChild = node->leftChild;
 				} else {
-					node->parrent->rightChild = node->leftChild;
-					node->parrent->right--;
+					node->parent->rightChild = node->leftChild;
 				}
-			node->leftChild->parrent = node->parrent;
-			cleaningLeftRightWeight(node->parrent,node);
-			checkIfRotateNeeded(node->parrent);
+			node->leftChild->parent = node->parent;
+			node->leftChild = nullptr;
+			updateTreeHeight(node->parent);
+			checkIfRotateNeeded(node->parent);
+			node->parent = nullptr;
 			} else {
-				node->leftChild->parrent = nullptr;
+				node->leftChild->parent = nullptr;
 				root = node->leftChild;
 			}
 		} else if(node->leftChild == nullptr && node->rightChild != nullptr) {
-			if(node->parrent != nullptr) {
-				if(node->parrent->leftChild != nullptr && node->parrent->leftChild->value == node->value) {
-					node->parrent->leftChild = node->rightChild;
-					node->parrent->left--;
+			if(node->parent != nullptr) {
+				if(node->parent->leftChild != nullptr && node->parent->leftChild->value == node->value) {
+					node->parent->leftChild = node->rightChild;
 				} else {
-					node->parrent->rightChild = node->rightChild;
-					node->parrent->right--;
+					node->parent->rightChild = node->rightChild;
 				}
-			node->rightChild->parrent = node->parrent;
-			cleaningLeftRightWeight(node->parrent,node);
-			checkIfRotateNeeded(node->parrent);
+			node->rightChild->parent = node->parent;
+			node->rightChild = nullptr;
+			updateTreeHeight(node->parent);
+			checkIfRotateNeeded(node->parent);
+			node->parent = nullptr;
 			} else {
-				node->rightChild->parrent = nullptr;
+				node->rightChild->parent = nullptr;
 				root = node->rightChild;
 			}
 		} else {
@@ -129,12 +113,22 @@ std::shared_ptr<Node<T>> AVL<T>::findBiggestElementInBranch(std::shared_ptr<Node
 }
 
 template<typename T>
-bool AVL<T>::search(T value) {
+bool AVL<T>::searchIfExists(T value) {
 	if (root != nullptr) {
 		return search(root, value) != nullptr;
 	} else {
-		std::cout << "There is no elemnt with value " << value << " in the tree." << std::endl;
+		std::cout<<"There is no elemnt with value "<<value<<" in the tree.\n\r";
 		return false;
+	}
+}
+
+template<typename T>
+std::shared_ptr<Node<T>> AVL<T>::searchAndReturn(T value) {
+	if (root != nullptr) {
+		return search(root, value);
+	} else {
+		std::cout<<"There is no elemnt with value "<<value<<" in the tree.\n\r";
+		return nullptr;
 	}
 }
 
@@ -149,77 +143,75 @@ std::shared_ptr<Node<T>> AVL<T>::search(std::shared_ptr<Node<T>> &node, T value)
 	else if (node->value == value) {
 		return node;
 	} else {
-		std::cout << "There is no elemnt with value " << value << " in the tree." << std::endl;
+		std::cout<<"There is no elemnt with value "<<value<<" in the tree.\n\r";
 		return nullptr;
 	}
 }
 
 template<typename T>
-void AVL<T>::checkIfRotateNeeded(std::shared_ptr<Node<T>> &node) {
-	if(node->leftChild != nullptr && node->rightChild == nullptr) {
-		if(node->left == 2){
-			if(node->leftChild->leftChild == nullptr) {
-				rotateLeft(node->leftChild);
-			}
-			rotateRight(node);
+void AVL<T>::updateTreeHeight(std::shared_ptr<Node<T>> &node) {
+	if(node->leftChild != nullptr && node->rightChild != nullptr){
+		if(node->leftChild->treeHeight > node->rightChild->treeHeight){
+			node->treeHeight = node->leftChild->treeHeight + 1;
+		} else {
+			node->treeHeight = node->rightChild->treeHeight + 1;
 		}
-	} else if(node->leftChild == nullptr && node->rightChild != nullptr) {
-		if(node->right == 2){
-			if(node->rightChild->rightChild == nullptr) {
-				rotateRight(node->rightChild);
-			}
-			rotateLeft(node);
-		}
-	} else if(node->leftChild != nullptr && node->rightChild != nullptr) {
-		if(node->right + 2 == node->left){
-			if(node->rightChild->rightChild == nullptr) {
-				rotateRight(node->rightChild);
-			}
-			rotateLeft(node);
-		} else if(node->left + 2 == node->right) {
-			if(node->leftChild->leftChild == nullptr) {
-				rotateLeft(node->leftChild);
-			}
-			rotateRight(node);
-		}
+	} else if(node->leftChild != nullptr) {
+		node->treeHeight = node->leftChild->treeHeight + 1;
+	} else if(node->rightChild != nullptr) {
+		node->treeHeight = node->rightChild->treeHeight + 1;
+	} else {
+		node->treeHeight = 0;
 	}
-	pomoc(node);
-	if (node->parrent != nullptr) {
-		checkIfRotateNeeded(node->parrent);
+	if(node != root) {
+		updateTreeHeight(node->parent);
 	}
 }
 
 template<typename T>
-void pomoc(std::shared_ptr<Node<T>> &node) {
-	std::cout<<"-----"<<std::endl;
-	if(node->leftChild != nullptr){
-		std::cout<<"node->leftChild: "<<node->leftChild->value<<std::endl;
-	} else {
-		std::cout<<"node->leftChild: nullptr"<<std::endl;
-	}
-	if(node->rightChild != nullptr){
-		std::cout<<"node->rightChild: "<<node->rightChild->value<<std::endl;
-	} else {
-		std::cout<<"node->rightChild: nullptr"<<std::endl;
-	}
-	if(node->parrent != nullptr){
-		std::cout<<"node->parrent: "<<node->parrent->value<<std::endl;
-	} else {
-		std::cout<<"node->parrent: nullptr"<<std::endl;
-	}
-	std::cout<<"node: "<<node->value<<std::endl;
+void AVL<T>::checkIfRotateNeeded(std::shared_ptr<Node<T>> &node) {
+	// if(node->leftChild != nullptr && node->rightChild == nullptr) {
+	// 	if(node->leftSubtreeHeight == 2){
+	// 		if(node->leftChild->leftChild == nullptr) {
+	// 			rotateLeft(node->leftChild);
+	// 		}
+	// 		rotateRight(node);
+	// 	}
+	// } else if(node->leftChild == nullptr && node->rightChild != nullptr) {
+	// 	if(node->rightSubtreeHeight == 2){
+	// 		if(node->rightChild->rightChild == nullptr) {
+	// 			rotateRight(node->rightChild);
+	// 		}
+	// 		rotateLeft(node);
+	// 	}
+	// } else if(node->leftChild != nullptr && node->rightChild != nullptr) {
+	// 	if(node->rightSubtreeHeight + 2 == node->leftSubtreeHeight){
+	// 		if(node->rightChild->rightChild == nullptr) {
+	// 			rotateRight(node->rightChild);
+	// 		}
+	// 		rotateLeft(node);
+	// 	} else if(node->leftSubtreeHeight + 2 == node->rightSubtreeHeight) {
+	// 		if(node->leftChild->leftChild == nullptr) {
+	// 			rotateLeft(node->leftChild);
+	// 		}
+	// 		rotateRight(node);
+	// 	}
+	// }
+	// if (node->parent != nullptr) {
+	// 	checkIfRotateNeeded(node->parent);
+	// }
 }
 
 template<typename T>
 void AVL<T>::rotateRight(std::shared_ptr<Node<T>>& node) {
 	auto son = node->leftChild;
-	node->parrent.swap(son->parrent);
+	node->parent.swap(son->parent);
 	if (son->rightChild) {
-		node->parrent.swap(son->rightChild);
-		node->parrent.swap(node->leftChild);
+		node->parent.swap(son->rightChild);
+		node->parent.swap(node->leftChild);
 	}
 	else {
-		node->parrent.swap(son->rightChild->parrent);
+		node->parent.swap(son->rightChild->parent);
 		node->leftChild.swap(son->rightChild);
 		son->rightChild = node;
 	}	
@@ -231,13 +223,13 @@ void AVL<T>::rotateRight(std::shared_ptr<Node<T>>& node) {
 template<typename T>
 void AVL<T>::rotateLeft(std::shared_ptr<Node<T>>& node) {
 	auto son = node->rightChild;
-	node->parrent.swap(son->parrent);
+	node->parent.swap(son->parent);
 	if (son->leftChild) {
-		node->parrent.swap(son->leftChild);
-		node->parrent.swap(node->rightChild);
+		node->parent.swap(son->leftChild);
+		node->parent.swap(node->rightChild);
 	}
 	else {
-		node->parrent.swap(son->leftChild->parrent);
+		node->parent.swap(son->leftChild->parent);
 		node->rightChild.swap(son->leftChild);
 		son->leftChild = node;
 	}
@@ -251,7 +243,7 @@ void AVL<T>::print() {
 	if (this->root != nullptr) {
 		printAll(this->root,0);
 	}
-	std::cout<<std::endl<<"-----"<<std::endl;
+	std::cout<<"\n\r-----\n\r";
 }
 
 template<typename T>
@@ -260,9 +252,9 @@ void AVL<T>::printAll(std::shared_ptr<Node<T>> &node, int level) {
 		printAll(node->leftChild, level+1);
 	}
 	for (int i = 0; i < level; i++) {
-		std::cout << "    ";
+		std::cout<<"    ";
 	}
-	std::cout << node->value <<"," << node->left << "," << node->right << std::endl;
+	std::cout<<node->value<<","<<node->treeHeight<<"\n\r";
 	if (node->rightChild != nullptr) {
 		printAll(node->rightChild, level+1);
 	}

@@ -7,9 +7,8 @@
 template<typename T>
 struct Node {
 	T value;
-	int left = 0;
-	int right = 0;
-	std::shared_ptr<Node<T>> parrent;
+	int treeHeight = 0;
+	std::shared_ptr<Node<T>> parent;
 	std::shared_ptr<Node<T>> leftChild;
 	std::shared_ptr<Node<T>> rightChild;
 
@@ -25,16 +24,17 @@ public:
 
 	void add(T value);
 	void remove(T value);
-	bool search(T value);
+	bool searchIfExists(T value);
+	std::shared_ptr<Node<T>> searchAndReturn(T value);
 	void print();
 
 private:
 
 	std::shared_ptr<Node<T>> root;
 	void addNode(std::shared_ptr<Node<T>> &node, T value);
-	void cleaningLeftRightWeight(std::shared_ptr<Node<T>> &parrent, std::shared_ptr<Node<T>> &node);
 	void removeNode(std::shared_ptr<Node<T>> &node, T value);
 	void checkIfRotateNeeded(std::shared_ptr<Node<T>> &node);
+	void updateTreeHeight(std::shared_ptr<Node<T>> &node);
 	void rotateLeft(std::shared_ptr<Node<T>> &node);
 	void rotateRight(std::shared_ptr<Node<T>> &node);
 	void printAll(std::shared_ptr<Node<T>> &node, int level);
