@@ -8,9 +8,9 @@ template<typename T>
 struct Node {
 	T value;
 	int treeHeight = 0;
-	std::shared_ptr<Node<T>> parent;
-	std::shared_ptr<Node<T>> leftChild;
-	std::shared_ptr<Node<T>> rightChild;
+	Node<T>* parent = nullptr;
+	Node<T>* rightChild = nullptr;
+	Node<T>* leftChild = nullptr;
 
 	Node(T value) {
 		this->value = value;
@@ -24,21 +24,20 @@ public:
 
 	void add(T value);
 	void remove(T value);
-	bool searchIfExists(T value);
-	std::shared_ptr<Node<T>> searchAndReturn(T value);
+	bool search(T value);
 	void print();
 
 private:
 
-	std::shared_ptr<Node<T>> root;
-	void addNode(std::shared_ptr<Node<T>> &node, T value);
-	void removeNode(std::shared_ptr<Node<T>> &node, T value);
-	void checkIfRotateNeeded(std::shared_ptr<Node<T>> &node);
-	void updateTreeHeight(std::shared_ptr<Node<T>> &node);
-	void rotateLeft(std::shared_ptr<Node<T>> &node);
-	void rotateRight(std::shared_ptr<Node<T>> &node);
-	void printAll(std::shared_ptr<Node<T>> &node, int level);
-	std::shared_ptr<Node<T>> search(std::shared_ptr<Node<T>> &node, T value);
-	std::shared_ptr<Node<T>> findBiggestElementInBranch(std::shared_ptr<Node<T>> &node);
+	Node<T>* root;
+	void addNode(Node<T>* node, T value);
+	void removeNode(Node<T>* node, T value);
+	void checkIfRotateNeeded(Node<T>* node);
+	void updateTreeHeight(Node<T>* node);
+	void rotateLeft(Node<T>* node);
+	void rotateRight(Node<T>* node);
+	void printAll(Node<T>* node, int level);
+	Node<T>* search(Node<T>* node, T value);
+	Node<T>* findBiggestElementInBranch(Node<T>* node);
 };
 #endif
