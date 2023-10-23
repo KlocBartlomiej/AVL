@@ -15,6 +15,11 @@ struct Node {
 	Node(T value) {
 		this->value = value;
 	}
+	/*~Node() { TODO: fix issue with not properly released memory in destructor during removing one node from the tree
+		delete parent;
+		delete rightChild;
+		delete leftChild;
+	}*/
 };
 
 template<typename T>
@@ -22,6 +27,11 @@ class AVL {
 
 public:
 
+	~AVL();/* = default;
+	AVL(AVL conts&) = delete;
+	AVL(AVL&&) = delete;
+	AVL operator=(AVL const&) = delete;
+	AVL operator=(AVL&&) = delete;*/
 	void add(T value);
 	void remove(T value);
 	bool search(T value);
@@ -29,7 +39,7 @@ public:
 
 private:
 
-	Node<T>* root;
+	Node<T>* root; //TODO: Change it to the smart ptr, so it don't need to be released with delete (no need for destructor)
 	void addNode(Node<T>* node, T value);
 	void removeNode(Node<T>* node, T value);
 	void checkIfRotateNeeded(Node<T>* node);

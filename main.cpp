@@ -2,6 +2,7 @@
 
 int main() {
     auto tree = std::make_unique<AVL<int>>();
+    //TODO: Add google test, so every case will be tested separately. It will reduce time to check what went wrong.
      tree->add(10);
      tree->add(11);
      tree->add(12);
@@ -35,7 +36,7 @@ int main() {
      tree->add(7);
      tree->add(8);
      tree->add(9);
-     std::cout<<"is int with value 30 present in the tree: "<<tree->search(30)<<"\n\r";
+     std::cout << "is int with value 30 present in the tree: " << tree->search(30) << "\n\r";
      tree->print();
      tree->remove(10);
      tree->remove(11);

@@ -1,6 +1,11 @@
 #include "AVL.h"
 
 template<typename T>
+AVL<T>::~AVL() {
+	delete root;
+}
+
+template<typename T>
 void AVL<T>::add(T value) {
 	if (this->root == nullptr) {
 		this->root = new Node<T>(value);
